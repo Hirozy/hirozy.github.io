@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="https://hirozy.com/xml/base.min.xml"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>System Proxy on Hiro Wong's Blog</title><link>https://hirozy.com/tags/system-proxy/</link><description>Recent content in System Proxy on Hiro Wong's Blog</description><generator>Hugo</generator><language>en-US</language><lastBuildDate>Sun, 25 Jan 2026 05:18:09 +0800</lastBuildDate><atom:link href="https://hirozy.com/tags/system-proxy/feed.xml" rel="self" type="application/rss+xml"/><item><title>Enable Proxy When macOS VPN is On</title><link>https://hirozy.com/posts/enable-proxy-when-macos-vpn-is-on/</link><pubDate>Sun, 25 Jan 2026 05:18:09 +0800</pubDate><guid>https://hirozy.com/posts/enable-proxy-when-macos-vpn-is-on/</guid><description>
+
+
+
+&lt;h2 id="configuring-macos-system-proxy-when-vpn-is-active"&gt;
+ &lt;a class="Heading-link u-clickable" href="https://hirozy.com/posts/enable-proxy-when-macos-vpn-is-on/#configuring-macos-system-proxy-when-vpn-is-active"&gt;Configuring macOS System Proxy When VPN is Active&lt;/a&gt;
+&lt;/h2&gt;
+&lt;p&gt;When working with VPNs on macOS, you may encounter an issue where your system proxy settings seem to stop working. This article explains why this happens and how to properly configure proxy settings for VPN connections using command-line tools.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Understanding Network Services&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;By default, when macOS connects to a VPN, it automatically ignores globally configured proxy environment variables like &lt;code&gt;http_proxy&lt;/code&gt; and &lt;code&gt;https_proxy&lt;/code&gt;. This behavior occurs because proxy environment variables are bound to specific macOS network services.&lt;/p&gt;
+&lt;p&gt;To view all network services currently available on your system, use the following command:&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -listallnetworkservices&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Proxy settings configured through the macOS Network Preferences interface are applied to the &lt;em&gt;Wi-Fi&lt;/em&gt; service. However, when you activate a WireGuard VPN (or any VPN), the VPN&amp;rsquo;s corresponding service takes precedence and overrides the Wi-Fi configuration.&lt;/p&gt;
+&lt;p&gt;The challenge is that macOS doesn&amp;rsquo;t provide a graphical interface to configure proxy settings directly for VPN services. This is where the &lt;code&gt;networksetup&lt;/code&gt; command-line utility becomes essential.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Using networksetup to Manage Proxy Settings&lt;/strong&gt;&lt;/p&gt;
+
+
+
+
+&lt;h3 id="viewing-current-proxy-configuration"&gt;
+ &lt;a class="Heading-link u-clickable" href="https://hirozy.com/posts/enable-proxy-when-macos-vpn-is-on/#viewing-current-proxy-configuration"&gt;Viewing Current Proxy Configuration&lt;/a&gt;
+&lt;/h3&gt;
+&lt;p&gt;To check the existing proxy settings for a specific network service, you can use these commands:&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;HTTP Proxy:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -getwebproxy Wi-Fi&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;HTTPS Proxy:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -getsecurewebproxy Wi-Fi&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;SOCKS Proxy:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -getsocksfirewallproxy Wi-Fi&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;Proxy Bypass Domains:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -getproxybypassdomains Wi-Fi&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+
+
+&lt;h3 id="configuring-proxy-for-vpn-service"&gt;
+ &lt;a class="Heading-link u-clickable" href="https://hirozy.com/posts/enable-proxy-when-macos-vpn-is-on/#configuring-proxy-for-vpn-service"&gt;Configuring Proxy for VPN Service&lt;/a&gt;
+&lt;/h3&gt;
+&lt;p&gt;First, identify your VPN service name using the &lt;code&gt;networksetup -listallnetworkservices&lt;/code&gt; command mentioned earlier. Once you&amp;rsquo;ve identified the service name (in this example, &amp;ldquo;WRAP&amp;rdquo;), you can configure the proxy settings:&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Set HTTP Proxy:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -setwebproxy WRAP 127.0.0.1 &lt;span style="color:#ae81ff"&gt;8080&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;Set HTTPS Proxy:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -setsecurewebproxy WRAP 127.0.0.1 &lt;span style="color:#ae81ff"&gt;8080&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;Set SOCKS Proxy:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -setsocksfirewallproxy WRAP 127.0.0.1 &lt;span style="color:#ae81ff"&gt;1080&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+
+
+&lt;h3 id="disable-proxy-for-vpn-service"&gt;
+ &lt;a class="Heading-link u-clickable" href="https://hirozy.com/posts/enable-proxy-when-macos-vpn-is-on/#disable-proxy-for-vpn-service"&gt;Disable Proxy for VPN Service&lt;/a&gt;
+&lt;/h3&gt;
+&lt;p&gt;After enabling the proxy service through the &lt;code&gt;networksetup&lt;/code&gt; command, there is no way to manage it through the GUI. To disable the proxy, use the following commands.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Disable HTTP Proxy:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -setwebproxystate WRAP off&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;Disable HTTPS Proxy:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -setsecurewebproxystate WRAP off&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;em&gt;Disable SOCKS Proxy:&lt;/em&gt;&lt;/p&gt;
+
+ 
+
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;networksetup -setsocksfirewallproxystate WRAP off&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;Important Note&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;A system restart is required for these changes to take effect.&lt;/em&gt; Make sure to reboot your Mac after applying the proxy configuration to your VPN service.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;With these commands, you can successfully configure proxy settings that persist even when your VPN connection is active, ensuring seamless routing of your network traffic through your preferred proxy server.&lt;/p&gt;</description></item><item><title>Do not go gentle into that good night</title><link>https://hirozy.com/posts/do-not-go-gentle-into-that-good-night/</link><pubDate>Fri, 12 Feb 2016 17:29:05 +0800</pubDate><guid>https://hirozy.com/posts/do-not-go-gentle-into-that-good-night/</guid><description>
+
+
+
+&lt;h5 id="dylan-thomas-1914---1953"&gt;
+ &lt;a class="Heading-link u-clickable" href="https://hirozy.com/posts/do-not-go-gentle-into-that-good-night/#dylan-thomas-1914---1953"&gt;&lt;strong&gt;Dylan Thomas, 1914 - 1953&lt;/strong&gt;&lt;/a&gt;
+&lt;/h5&gt;
+&lt;p&gt;&lt;em&gt;Do not go gentle into that good night,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Old age should burn and rave at close of day;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Rage, rage against the dying of the light.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Though wise men at their end know dark is right,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Because their words had forked no lightning they&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Do not go gentle into that good night.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Good men, the last wave by, crying how bright&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Their frail deeds might have danced in a green bay,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Rage, rage against the dying of the light.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Wild men who caught and sang the sun in flight,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;And learn, too late, they grieved it on its way,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Do not go gentle into that good night.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Grave men, near death, who see with blinding sight&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Blind eyes could blaze like meteors and be gay,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Rage, rage against the dying of the light.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;And you, my father, there on the sad height,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Curse, bless, me now with your fierce tears, I pray.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Do not go gentle into that good night.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Rage, rage against the dying of the light.&lt;/em&gt;&lt;/p&gt;</description></item><item><title>When you are old</title><link>https://hirozy.com/posts/when-you-are-old/</link><pubDate>Wed, 21 Jan 2015 22:29:17 +0800</pubDate><guid>https://hirozy.com/posts/when-you-are-old/</guid><description>
+
+
+
+&lt;h4 id="william-butler-yeats-1865-1939"&gt;
+ &lt;a class="Heading-link u-clickable" href="https://hirozy.com/posts/when-you-are-old/#william-butler-yeats-1865-1939"&gt;&lt;strong&gt;William Butler Yeats, 1865-1939&lt;/strong&gt;&lt;/a&gt;
+&lt;/h4&gt;
+&lt;p&gt;&lt;em&gt;When you are old and grey and full of sleep,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;And nodding by the fire, take down this book,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;And slowly read, and dream of the soft look&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Your eyes had once, and of their shadows deep;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;How many loved your moments of glad grace,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;And loved your beauty with love false or true,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;But one man loved the pilgrim soul in you,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;And loved the sorrows of your changing face;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;And bending down beside the glowing bars,&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Murmur, a little sadly, how Love fled&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;And paced upon the mountains overhead&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;And hid his face amid a crowd of stars.&lt;/em&gt;&lt;/p&gt;</description></item></channel></rss>
